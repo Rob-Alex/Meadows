@@ -1,0 +1,11 @@
+[package]
+name = "meadows"
+version = "0.1.0"
+edition = "2021"
+authors = ["Robbie Alexander <rob.alexander.115@gmail.com>"]
+description = "Finite Difference Time Domain Simulation in Rust"
+readme = "README.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
