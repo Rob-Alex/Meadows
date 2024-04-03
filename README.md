@@ -1,6 +1,6 @@
 # MEADOWS
 
-**MEADOWS** is a finite difference time domain (FDTD) solver developed in Rust. It's designed for simulating electromagnetic wave propagation and interaction in various environments. The project aims to provide a flexible and efficient platform for both academic research and industrial applications in the field of computational electromagnetics.
+**MEADOWS** is a finite volume solver developed in Rust. It's designed for simulating electromagnetic wave propagation and interaction in various environments. The project aims to provide a flexible and efficient platform for both academic research and industrial applications in the field of computational electromagnetics.
 
 ## Project Objectives
 
