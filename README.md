@@ -1,5 +1,7 @@
 # MEADOWS
 
+For looking at fields! 
+
 **MEADOWS** is a electromagnetic solver developed in Rust. It's designed for simulating electromagnetic wave propagation and interaction in various environments. The project aims to provide a flexible and efficient platform for both academic research and industrial applications in the field of computational electromagnetics.
 
 ## Project Objectives
