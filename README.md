@@ -1,10 +1,10 @@
 # MEADOWS
 
-**MEADOWS** is a finite volume solver developed in Rust. It's designed for simulating electromagnetic wave propagation and interaction in various environments. The project aims to provide a flexible and efficient platform for both academic research and industrial applications in the field of computational electromagnetics.
+**MEADOWS** is a electromagnetic solver developed in Rust. It's designed for simulating electromagnetic wave propagation and interaction in various environments. The project aims to provide a flexible and efficient platform for both academic research and industrial applications in the field of computational electromagnetics.
 
 ## Project Objectives
 
-- **Visualization**: Implement a visualization module to render the model of the simulation environment. I am thinking of using `gfx-rs` / `gfx-hal` or another hardware abstraction layer for graphics rendering.
+- **Visualization**: Implement a visualization module to render the model of the simulation environment. I am thinking of using `wgpu` or another hardware abstraction layer for graphics rendering.
 
 ## TODOs
 
@@ -13,7 +13,7 @@ which there are many...
 ### Core Features
 
 - [ ] **Visualisation of the Model**
-  - Implement a way to visually represent the model, possibly through the integration of a graphics rendering library like `gfx-rs`. This would also be used in compute shaders
+  - Implement a way to visually represent the model, possibly through the integration of a graphics rendering library like `wgpu`. This would also be used in compute shaders
 
 ### Simulation Layers
 
