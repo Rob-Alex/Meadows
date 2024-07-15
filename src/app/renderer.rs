@@ -1,4 +1,7 @@
-use std::sync::Arc;
+use std::{borrow::Cow, sync::Arc};
+
+use wgpu::{ShaderModule, ShaderSource, TextureFormat};
+
 use winit::{
     window::Window,
     dpi::PhysicalSize,
@@ -9,6 +12,7 @@ pub struct State <'window_state> {
     adapter: wgpu::Adapter,
     device: wgpu::Device,
     queue: wgpu::Queue,
+    render_pipeline: wgpu::RenderPipeline,
 }
 
 impl<'window_state> State<'window_state> {
@@ -60,12 +64,22 @@ impl<'window_state> State<'window_state> {
             view_formats: vec![],
         };
 
+        let shader_descripter = wgpu::ShaderModuleDescriptor {
+            label: None,
+            source: ShaderSource::Wgsl(Cow::Borrowed(include_str!("shaders/shader.wgsl"))),
+        };
+
+        let shader =device.create_shader_module(shader_descripter);
+
+        let render_pipeline = create_pipeline(&device, &shader, surface_config.format);
+
         Self {
             surface,
             surface_config,
             adapter,
             device,
             queue,
+            render_pipeline,
         }
     }
 
@@ -91,16 +105,16 @@ impl<'window_state> State<'window_state> {
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
         {
-            let _r_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            let mut r_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: None,
                 color_attachments: &[Some(wgpu::RenderPassColorAttachment {
                     view: &texture_view,
                     resolve_target: None,
                     ops: wgpu::Operations {
                         load: wgpu::LoadOp::Clear(wgpu::Color {
-                            r: 0.75,
-                            g: 0.75,
-                            b: 0.75,
+                            r: 0.35,
+                            g: 0.35,
+                            b: 0.35,
                             a: 1.0
                         }),
                         store: wgpu::StoreOp::Store,
@@ -110,8 +124,62 @@ impl<'window_state> State<'window_state> {
                 timestamp_writes: None,
                 occlusion_query_set: None,
             });
+            r_pass.set_pipeline(&self.render_pipeline);
+            r_pass.draw(0..3, 0..1);
         }
         self.queue.submit(Some(encoder.finish()));
         surface_texture.present();
     }
+}
+
+fn create_pipeline(
+    device: &wgpu::Device,
+    shader: &ShaderModule,
+    swap_chain_format: TextureFormat,
+) -> wgpu::RenderPipeline {
+    let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+        label: None,
+        bind_group_layouts: &[],
+        push_constant_ranges: &[],
+    });
+    return device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+        label: None,
+        layout: Some(&pipeline_layout),
+        vertex: wgpu::VertexState {
+            module: shader,
+            entry_point: "vs_main",
+            buffers: &[],
+            compilation_options: Default::default(),
+        },
+        fragment: Some(wgpu::FragmentState {
+            module: shader,
+            entry_point: "fs_main",
+            compilation_options: Default::default(),
+            targets: &[Some(swap_chain_format.into())],
+        }),
+        primitive: wgpu::PrimitiveState {
+            // topology: wgpu::PrimitiveTopology::TriangleList,
+            // strip_index_format: None,
+            // front_face: wgpu::FrontFace::Ccw,
+            // cull_mode: Some(wgpu::Face::Back),
+            // // Setting this to anything other than Fill requires Features::POLYGON_MODE_LINE
+            // // or Features::POLYGON_MODE_POINT
+            // polygon_mode: wgpu::PolygonMode::Fill,
+            // // Requires Features::DEPTH_CLIP_CONTROL
+            // unclipped_depth: false,
+            // // Requires Features::CONSERVATIVE_RASTERIZATION
+            // conservative: false,
+            ..Default::default()
+        },
+        depth_stencil: None,
+        multisample: wgpu::MultisampleState::default(),
+        multiview: None,
+    });
+}
+
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct Vertex {
+    position: [f32; 3],
+    color: [f32; 3],
 }
