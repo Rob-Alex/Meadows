@@ -6,13 +6,32 @@ use winit::{
     keyboard::{Key, ModifiersState, PhysicalKey},
     window::{Window, WindowId},
 };
-mod renderer;
+
+use crate::gpu::rendering::renderer;
+use crate::solvers::fdtd::FDTD;
 use renderer::State;
 
 #[derive(Default)]
 pub struct Application<'window_state> {
     window: Option<Arc<Window>>,
     state: Option<State<'window_state>>,
+    fdtd_solver: Option<FDTD>,
+    simulation_time: f64,
+}
+
+impl Application<'_> {
+    fn init_fdtd(&mut self) {
+        let mut fdtd_solver = FDTD::new();
+        self.fdtd_solver = Some(fdtd_solver);
+        self.simulation_time = 0.0;
+    }
+
+    fn run_fdtd_simulation(&mut self, delta_time: f64) {
+        if let Some(ref mut fdtd_solver) = self.fdtd_solver {
+            fdtd_solver.simulation_time += delta_time;
+            println!("{:}", fdtd_solver.simulation_time)
+        }
+    }
 }
 
 impl ApplicationHandler for Application<'_> {
@@ -23,12 +42,15 @@ impl ApplicationHandler for Application<'_> {
 
         let state = State::new(window.clone());
         self.state = Some(state);
+
+        //fdtd init
+        self.init_fdtd();
     }
 
     fn window_event(
         &mut self,
         event_loop: &ActiveEventLoop,
-        window_id: WindowId,
+        _window_id: WindowId,
         event: WindowEvent,
     ) {
         let window = match self.window.as_ref() {
@@ -48,6 +70,10 @@ impl ApplicationHandler for Application<'_> {
                     window.request_redraw();
                     state.update();
                     state.draw();
+
+                    //Run fdtd
+                    let delta_time = 1.0 / 120.0; //assumes 120fps
+                    self.run_fdtd_simulation(delta_time);
                 }
             }
             WindowEvent::KeyboardInput { .. } => {
